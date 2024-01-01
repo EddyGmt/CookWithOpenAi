@@ -29,7 +29,7 @@ services:
     ports:
       - 5000:3000
     volumes:
-      - ./backend:/usr/node/app
+      - ./back:/usr/node/app
     working_dir: /usr/node/app
     environment:
       DATABASE_URL: postgres://pgUser:pgPassword@db:5432/database
