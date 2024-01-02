@@ -8,6 +8,9 @@ const User = db.sequelize.define('User', {
         primaryKey: true,
         autoIncrement: true
     },
+    img:{
+        type: DataTypes.STRING
+    },
     username: {
         type: DataTypes.STRING,
         unique: true

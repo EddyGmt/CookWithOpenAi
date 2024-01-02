@@ -8,6 +8,9 @@ const Recette = db.sequelize.define('Recette', {
         primaryKey: true,
         autoIncrement: true
     },
+    img:{
+        type: DataTypes.STRING
+    },
     nom: {
         type: DataTypes.STRING,
     },
@@ -20,6 +23,9 @@ const Recette = db.sequelize.define('Recette', {
     quantites: {
         type: DataTypes.ARRAY(DataTypes.BIGINT)
     },
+    tags:{
+        type: DataTypes.ARRAY(DataTypes.STRING)
+    }
 });
 
 Recette.hasMany(Notation, {

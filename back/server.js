@@ -11,8 +11,6 @@ const {
     unauthorizedError
 } = require('./middleware/errorMiddleware')
 const PORT = process.env.PORT || 3000;
-// const operationRoutes = require('./routes/operationRoutes');
-// const users = require('./routes/api/users');
 const corsOptions = {
     origin: ['http://localhost:3000'],
     credentials: true,            //access-control-allow-credentials:true
@@ -22,7 +20,7 @@ const corsOptions = {
 const db = require('./db');
 const app = express();
 const server = app.listen(PORT, () => {
-    console.log("App listening on port 3000!");
+    console.log("App listening on port 5000!");
 });
 app.use(express.json());
 
