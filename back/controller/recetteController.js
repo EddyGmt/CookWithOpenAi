@@ -4,7 +4,7 @@ const openai = require('openai')
 
 //Clé API POUR OpenAi
 
-const openaiApiKey = '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';
+const openaiApiKey = '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';
 const openaiClient = new openai.OpenAIAPI({ key: openaiApiKey });
 
 //Création d'une recette de cuisine
