@@ -28,6 +28,10 @@ const Recette = db.sequelize.define('Recette', {
         type: DataTypes.ARRAY(DataTypes.BIGINT),
         allowNull: false
     },
+    etapes:{
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        allowNull: false
+    },
     tags:{
         type: DataTypes.ARRAY(DataTypes.STRING)
     }

@@ -1,23 +1,16 @@
 const asyncHandler = require('express-async-handler')
 const {Recette} = require('../db/models/recette.model');
 const openai = require('openai')
+const {Sequelize} = require("sequelize");
+require('dotenv').config();
 
 //Clé API POUR OpenAi
-
-const openaiApiKey = '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';
-const openaiClient = new openai.OpenAIAPI({ key: openaiApiKey });
+const openaiApiKey = process.env.OPENAI_API_KEY;
+const openaiClient = new openai({key: openaiApiKey});
 
 //Création d'une recette de cuisine
 const createRecipe = asyncHandler(async (req, res) => {
     const {img, nom, nb_personnes, ingredients, quantites} = req.body;
-
-    // const recipeData = {
-    //     img,
-    //     nom,
-    //     nb_personnes,
-    //     ingredients,
-    //     quantites
-    // }
     try {
         const recipe = await Recette.create({
             img,
@@ -34,7 +27,8 @@ const createRecipe = asyncHandler(async (req, res) => {
                 nom: recipe.nom,
                 nb_personnes: recipe.nb_personnes,
                 ingredients: recipe.ingredients,
-                quantites: recipe.quantites
+                quantites: recipe.quantites,
+                etapes: recipe.etapes
             })
         } else {
             res.status(400);
@@ -46,24 +40,79 @@ const createRecipe = asyncHandler(async (req, res) => {
     }
 })
 
+
 const searchRecipe = asyncHandler(async (req, res) => {
     const query = req.query.query;
-    try{
-        const response = await openaiClient.completions.create({
+    //Requete pour trouver des recettes dans la base de données
+    const recipesFromDB = await Recette.findAll({
+        where: {
+            [Sequelize.Op.or]: [
+                {nom: {[Sequelize.Op.iLike]: `%${query}%`}},
+                {img: {[Sequelize.Op.iLike]: `%${query}%`}},
+                {nb_personnes: {[Sequelize.Op.eq]: query}}, // Utiliser [Sequelize.Op.eq] pour une égalité stricte
+                {ingredients: {[Sequelize.Op.iLike]: `%${query}%`}},
+                {quantites: {[Sequelize.Op.iLike]: `%${query}%`}},
+                {etapes: {[Sequelize.Op.iLike]: `%${query}%`}},
+            ]
+        }
+    });
+    const multipleResults = [...recipesFromDB];
+
+    try {
+        const openaiResponse = await openaiClient.completions.create({
             engine: 'text-davinci-003',
-            prompt: `Trouver une recette de cuisine pour ${query}`,
+            prompt: `Recette de cuisine: ${query}`,
             max_tokens: 150
         });
 
+        // Renvoyer une réponse JSON avec les résultats combinés
         res.json({
-           dbResu
-        })
+            dbResults: multipleResults,
+        });
 
-
-    }catch(error){
+    } catch (error) {
         console.error(error);
-        res.status(500).json({error:'Erreur interne du serveur'})
+        res.status(500).json({error: 'Erreur interne du serveur'})
     }
 })
 
-module.exports = {createRecipe, searchRecipe}
+const generateIngredients = asyncHandler(async(req, res) =>{
+    const recetteId = req.params.id;
+    const recette = Recette.findByPk(recetteId)
+    try{
+        const prompt = `Générer une liste de course pour la recette ${recette.nom}`
+        const openAiResponse = await openaiClient.completions.create({
+            engine: 'text-davinci-002',
+            prompt,
+            max_tokens: 150,
+        });
+
+        // Récupérez et renvoyez le texte généré
+        const listeDeCourse = openAiResponse.choices[0].text.trim();
+        return listeDeCourse;
+
+    }catch(error){
+        console.error(error);
+        res.status(500).json({error: 'Erreur interne du serveur'})
+    }
+})
+
+const generateAccompagnement = asyncHandler(async(req, res)=>{
+    const recetteId = req.params.id;
+    const recette = Recette.findByPk(recetteId)
+    try{
+        const prompt = `Peux-tu me donner un accompagnement qui irait bien avec la recette: ${recette.nom}`;
+        const openAiResponse = await openaiClient.completions.create({
+            engine:'text-davinci-002',
+            prompt,
+            max_tokens:150
+
+            //TODO Méthode a finir et à tester pour la génération d'accompagnement
+        })
+    }catch(error){
+        console.error(error);
+        res.status(500).json({error: 'Erreur interne du serveur'});
+    }
+})
+
+module.exports = {createRecipe, searchRecipe, generateIngredients}

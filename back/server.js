@@ -22,6 +22,7 @@ const app = express();
 const server = app.listen(PORT, () => {
     console.log("App listening on port 5000!");
 });
+const recetteRoutes = require('./routes/recetteRoutes')
 app.use(express.json());
 
 app.use(bodyParser.urlencoded({
@@ -40,7 +41,11 @@ app.use(cors(corsOptions));
 // Setting up the static directory
 app.use('/public', express.static('public'))
 
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use('/api/recette', recetteRoutes);
 
 app.get('/', (req, res) => res.send('Projet en cours'));
 
