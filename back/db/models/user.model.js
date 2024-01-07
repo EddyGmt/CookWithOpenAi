@@ -1,6 +1,8 @@
 const db = require('../index');
 const {DataTypes} = require("sequelize");
-const {Allergie} = require("./allergie.model");
+
+
+
 
 const User = db.sequelize.define('User', {
     id: {
@@ -22,13 +24,12 @@ const User = db.sequelize.define('User', {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
-    }
+    },
+    favorites: {
+        type: DataTypes.ARRAY(DataTypes.INTEGER),
+        defaultValue: [],
+      },
 })
 
-User.hasMany(Allergie,{
-    foreignKey:{
-        name:'allergieId'
-    }
-})
 
-module.exports = {User}
+module.exports = User

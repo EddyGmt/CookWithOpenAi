@@ -15,4 +15,4 @@ const Notation = db.sequelize.define('Notation', {
     },
 })
 
-module.exports = {Notation};
+module.exports = Notation
