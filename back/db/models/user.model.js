@@ -37,3 +37,5 @@ User.hasMany(Allergie,{
         name:'allergieId'
     }
 })
+
+module.exports = {User}

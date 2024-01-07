@@ -23,8 +23,7 @@ const Recette = db.sequelize.define('Recette', {
         allowNull: false
     },
     ingredients: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
-        allowNull: false
+        type: DataTypes.ARRAY(DataTypes.STRING)
     },
     quantites: {
         type: DataTypes.ARRAY(DataTypes.BIGINT),
@@ -32,7 +31,6 @@ const Recette = db.sequelize.define('Recette', {
     },
     etapes:{
         type: DataTypes.ARRAY(DataTypes.STRING),
-        allowNull: false
     },
     tags:{
         type: DataTypes.ARRAY(DataTypes.STRING)
@@ -46,3 +44,5 @@ Recette.hasMany(Notation, {
         name: 'notationId'
     }
 })
+
+module.exports = {Recette}
