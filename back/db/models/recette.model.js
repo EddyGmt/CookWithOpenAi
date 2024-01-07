@@ -1,6 +1,8 @@
 const db = require('../index');
 const {DataTypes} = require("sequelize");
 const {Notation} = require("./notation.model");
+const {UserRecette} = require('./userRecette.model'); 
+
 
 const Recette = db.sequelize.define('Recette', {
     id: {
@@ -36,6 +38,8 @@ const Recette = db.sequelize.define('Recette', {
         type: DataTypes.ARRAY(DataTypes.STRING)
     }
 });
+
+Recette.belongsToMany(User, { through: UserRecette, as: 'favoris' }); 
 
 Recette.hasMany(Notation, {
     foreignKey: {
