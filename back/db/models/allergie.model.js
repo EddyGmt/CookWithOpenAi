@@ -12,4 +12,4 @@ const Allergie = db.sequelize.define('Allergie', {
     },
 })
 
-module.exports = {Allergie}
+module.exports = Allergie

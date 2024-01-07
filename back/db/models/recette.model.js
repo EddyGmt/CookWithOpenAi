@@ -1,7 +1,6 @@
 const db = require('../index');
 const {DataTypes} = require("sequelize");
-const {Notation} = require("./notation.model");
-const {UserRecette} = require('./userRecette.model'); 
+
 
 
 const Recette = db.sequelize.define('Recette', {
@@ -37,12 +36,6 @@ const Recette = db.sequelize.define('Recette', {
     }
 });
 
-Recette.belongsToMany(User, { through: UserRecette, as: 'favoris' }); 
 
-Recette.hasMany(Notation, {
-    foreignKey: {
-        name: 'notationId'
-    }
-})
 
-module.exports = {Recette}
+module.exports = Recette

@@ -22,6 +22,7 @@ const server = app.listen(PORT, () => {
     console.log("App listening on port 5000!");
 });
 const recetteRoutes = require('./routes/recetteRoutes')
+const userRoutes = require('./routes/userRoutes')
 
 
 app.use(express.json());
@@ -44,6 +45,7 @@ app.use('/public', express.static('public'))
 app.use(cookieParser());
 
 app.use('/api/recette', recetteRoutes);
+app.use('/api/user', userRoutes);
 app.get('/test', (req, res) => {
     res.send('API test réussi');
 });
