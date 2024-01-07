@@ -8,7 +8,7 @@ const Recette = db.sequelize.define('Recette', {
         primaryKey: true,
         autoIncrement: true
     },
-    img:{
+    img: {
         type: DataTypes.STRING,
         allowNull: true
     },
@@ -27,10 +27,10 @@ const Recette = db.sequelize.define('Recette', {
         type: DataTypes.ARRAY(DataTypes.BIGINT),
         allowNull: false
     },
-    etapes:{
+    etapes: {
         type: DataTypes.ARRAY(DataTypes.STRING),
     },
-    tags:{
+    tags: {
         type: DataTypes.ARRAY(DataTypes.STRING)
     }
 });

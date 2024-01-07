@@ -76,40 +76,47 @@ const searchRecipe = asyncHandler(async (req, res) => {
     }
 })
 
-const generateIngredients = asyncHandler(async(req, res) =>{
+const generateIngredients = asyncHandler(async (req, res) => {
     const recetteId = req.params.id;
-    const recette = Recette.findByPk(recetteId)
-    try{
-        const prompt = `Générer une liste de course pour la recette ${recette.nom}`
+    const recette = await Recette.findByPk(recetteId);
+
+    try {
+        if (!recette) {
+            res.status(404).json({error: 'Recette introuvable'});
+            return;
+        }
+
+        const prompt = `Générer une liste de course pour la recette ${recette.nom}`;
         const openAiResponse = await openaiClient.completions.create({
-            engine: 'text-davinci-002',
-            prompt,
+            engine: 'text-davinci-003',
+            prompt: 'Générer une liste de course pour la recette ${recette.nom}',
             max_tokens: 150,
         });
 
         // Récupérez et renvoyez le texte généré
-        const listeDeCourse = openAiResponse.choices[0].text.trim();
-        return listeDeCourse;
+        const listeDeCourse = await openAiResponse.choices[0].text.trim();
+        res.json({listeDeCourse});
 
-    }catch(error){
+    } catch (error) {
         console.error(error);
-        res.status(500).json({error: 'Erreur interne du serveur'})
+        res.status(500).json({error: 'Erreur interne du serveur'});
     }
-})
+});
 
-const generateAccompagnement = asyncHandler(async(req, res)=>{
+
+const generateAccompagnement = asyncHandler(async (req, res) => {
     const recetteId = req.params.id;
     const recette = Recette.findByPk(recetteId)
-    try{
+    try {
         const prompt = `Peux-tu me donner un accompagnement qui irait bien avec la recette: ${recette.nom}`;
         const openAiResponse = await openaiClient.completions.create({
-            engine:'text-davinci-002',
+            engine: 'text-davinci-003',
             prompt,
-            max_tokens:150
+            max_tokens: 150
 
             //TODO Méthode a finir et à tester pour la génération d'accompagnement
         })
-    }catch(error){
+    } catch (error) {
         console.error(error);
         res.status(500).json({error: 'Erreur interne du serveur'});
     }
