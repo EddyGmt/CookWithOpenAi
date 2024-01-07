@@ -27,7 +27,7 @@ services:
   server:
     image: node
     ports:
-      - 5000:5000
+      - 5000:3000
     volumes:
       - ./back:/usr/node/app
     working_dir: /usr/node/app
