@@ -33,7 +33,8 @@ const Recette = db.sequelize.define('Recette', {
     },
     tags: {
         type: DataTypes.ARRAY(DataTypes.STRING)
-    }
+    },
+   
 });
 
 

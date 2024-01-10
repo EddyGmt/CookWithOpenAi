@@ -12,9 +12,9 @@ User.belongsToMany(Recette, { through: UserRecette, as: 'favoris' });
 Recette.belongsToMany(User, { through: UserRecette, as: 'favoris' });
 
 Recette.hasMany(Notation, {
-    foreignKey: {
-        name: 'notationId'
-    }
+    foreignKey: 'recetteId', // Assurez-vous que le nom de la colonne est correct
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
 });
 
 

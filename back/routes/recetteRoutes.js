@@ -4,6 +4,10 @@ const {
     createRecipe,
     searchRecipe,
     generateIngredients,
+    getRecipeWithRecommendations,
+    updateRecipeNotationCommentary
+    } = require('../controller/recetteController')
+    generateIngredients,
     generateAccompagnement
 } = require('../controller/recetteController')
 const {Recette} = require("../db/models/recette.model");
@@ -16,6 +20,11 @@ const openaiClient = new openai({key: openaiApiKey});
 router.post('/create', createRecipe);
 router.post('/search-recette', searchRecipe);
 router.get('/generer-liste-de-course/:id', generateIngredients);
+router.get('/:id', getRecipeWithRecommendations);
+router.put('/:id/notation-commentary', updateRecipeNotationCommentary);
+
+
+
 router.get('/generer-accompagnements/:id', generateAccompagnement);
 
 router.post('/search', async (req, res) => {

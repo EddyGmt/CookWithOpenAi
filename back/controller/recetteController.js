@@ -40,6 +40,44 @@ const createRecipe = asyncHandler(async (req, res) => {
     }
 })
 
+const updateRecipeNotationCommentary = asyncHandler(async (req, res) => {
+
+    if (!req.user) {
+        return res.status(401).json({ success: false, error: 'Utilisateur non authentifié' });
+    }
+
+    const recetteId = req.params.id;
+    const userId = req.user.id;
+
+
+
+    const { note, comment } = req.body;
+
+    try {
+        const recette = await Recette.findByPk(recetteId);
+
+        if (!recette) {
+            return res.status(404).json({ success: false, error: 'Recette non trouvée' });
+        }
+
+        let notation = await Notation.findOne({ where: { recetteId, userId } });
+
+        if (notation) {
+            // Mise à jour de la notation existante
+            await notation.update({ note, comment });
+        } else {
+            // Création d'une nouvelle notation
+            notation = await Notation.create({ recetteId, userId, note, comment });
+        }
+
+        return res.status(200).json({ success: true, data: notation });
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour de la notation', error);
+        return res.status(500).json({ success: false, error: 'Erreur lors de la mise à jour de la notation' });
+    }
+});
+
+
 
 const searchRecipe = asyncHandler(async (req, res) => {
     const {recherhce} = req.body;
@@ -146,4 +184,40 @@ const generateAccompagnement = asyncHandler(async (req, res) => {
     }
 })
 
-module.exports = {createRecipe, searchRecipe, generateIngredients, generateAccompagnement}
+const generateRecipeRecommendations = async (recipe) => {
+    try {
+        console.log('Recipe details:', recipe);
+
+        const prompt = `Proposez des recettes similaires à : "${recipe.nom}". Ingrédients : ${recipe.ingredients.join(', ')}.`;
+        console.log('Prompt:', prompt);
+
+        const openAiResponse = await openaiClient.completions.create({
+            engine: 'text-davinci-003',
+            prompt,
+            max_tokens: 150,
+        });
+
+        const recommendations = openAiResponse.choices[0].text.trim();
+        console.log('Recommendations:', recommendations);
+
+        return recommendations;
+    } catch (error) {
+        console.error(error);
+        throw new Error('Erreur lors de la génération de recommandations');
+    }
+};
+
+const getRecipeWithRecommendations = asyncHandler(async (req, res) => {
+    const recetteId = req.params.id;
+    const recette = await Recette.findByPk(recetteId);
+
+    const recommendations = await generateRecipeRecommendations(recette);
+
+if (recommendations) {
+    return res.status(200).json({ success: true, data: recette, recommendations });
+} else {
+    return res.status(500).json({ success: false, error: 'Erreur lors de la génération de recommandations' });
+}
+});
+
+module.exports = {createRecipe, searchRecipe, generateIngredients, getRecipeWithRecommendations, updateRecipeNotationCommentary}
