@@ -25,10 +25,6 @@ const User = db.sequelize.define('User', {
         allowNull: false,
         defaultValue: false
     },
-    favorites: {
-        type: DataTypes.ARRAY(DataTypes.INTEGER),
-        defaultValue: [],
-      },
 })
 
 

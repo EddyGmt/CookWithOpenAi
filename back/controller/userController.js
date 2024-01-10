@@ -1,5 +1,10 @@
 const asyncHandler = require('express-async-handler');
-const { User, Recette, UserRecette } = require('../db/models');
+const  {User} = require('../db/models');
+const  {Recette} = require('../db/models');
+const   {UserRecette}  = require('../db/models');
+
+
+
 
 const addToFavorites = asyncHandler(async (req, res) => {
   const { userId, recipeId } = req.body;
