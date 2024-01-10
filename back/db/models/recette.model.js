@@ -38,4 +38,4 @@ const Recette = db.sequelize.define('Recette', {
 
 
 
-module.exports = Recette
+module.exports = {Recette}
