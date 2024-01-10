@@ -5,9 +5,7 @@ const {
     searchRecipe,
     generateIngredients,
     getRecipeWithRecommendations,
-    updateRecipeNotationCommentary
-    } = require('../controller/recetteController')
-    generateIngredients,
+    updateRecipeNotationCommentary,
     generateAccompagnement
 } = require('../controller/recetteController')
 const {Recette} = require("../db/models/recette.model");
@@ -24,11 +22,10 @@ router.get('/:id', getRecipeWithRecommendations);
 router.put('/:id/notation-commentary', updateRecipeNotationCommentary);
 
 
-
 router.get('/generer-accompagnements/:id', generateAccompagnement);
 
 router.post('/search', async (req, res) => {
-    const { nom } = req.body;
+    const {nom} = req.body;
 
     try {
         // 1. Récupération des données depuis la base de données
@@ -36,9 +33,9 @@ router.post('/search', async (req, res) => {
             where: {
                 nom: {
                     [Sequelize.Op.iLike]: `%${nom}%`,
+                },
             },
-        },
-    });
+        });
 
         // 1. Formatage de la requête pour OpenAI GPT-3.5-turbo
         const prompt = 'Bonjour je veux des idées de recettes qui correspondent à ce plat et autour de ce plat : ${nom}';
@@ -63,10 +60,10 @@ router.post('/search', async (req, res) => {
         // 3. Traitement des réponses de OpenAI GPT-3.5-turbo
         const ideas = completions.choices.map((choice) => choice.message.content);
 
-        res.json({ ideas });
+        res.json({ideas});
     } catch (error) {
         console.error('Erreur lors de la recherche :', error);
-        res.status(500).json({ error: 'Erreur lors de la recherche' });
+        res.status(500).json({error: 'Erreur lors de la recherche'});
     }
 });
 
