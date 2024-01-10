@@ -3,7 +3,7 @@ const User = require('./user.model');
 const {Recette} = require('./recette.model');
 const UserRecette = require('./userRecette.model');
 const Notation = require('./notation.model'); 
-const Allergie = require('./allergie.model');  
+const ContreIndication = require('./contreIndications.model');
 
 
 
@@ -18,9 +18,9 @@ Recette.hasMany(Notation, {
 });
 
 
-User.hasMany(Allergie, {
+User.hasMany(ContreIndication, {
     foreignKey: {
-        name: 'allergieId'
+        name: 'ContreIndicationId'
     }
 });
 
@@ -30,5 +30,5 @@ module.exports = {
     Recette,
     UserRecette,
     Notation,
-    Allergie,
+    ContreIndication,
 };

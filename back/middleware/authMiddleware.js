@@ -1,10 +1,9 @@
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
 const { User } = require('../db/models/user.model');
-const { Credential } = require("../db/models/credential.model");
 
 const protect = asyncHandler(async (req, res, next) => {
-    let token
+    let token;
 
     if (
         req.headers.authorization &&
@@ -51,23 +50,4 @@ const admin = (req, res, next) => {
 
 
 // User must be an admin
-
-
-const credential = asyncHandler(async (req, res, next) => {
-
-    try {
-        const credential = await Credential.findOne({ where: { merchantId: req.params.id } })
-
-        if (!credential) {
-            res.status(401);
-            throw new Error("Le merchant n'as pas de credentials");
-        }
-        next();
-    } catch (error) {
-        console.error(error);
-        res.status(401).json({ error: error.message });
-    }
-
-})
-
-module.exports = { protect, admin, credential }
+module.exports = { protect, admin }
