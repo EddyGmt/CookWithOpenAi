@@ -185,17 +185,27 @@ const generateAccompagnement = asyncHandler(async (req, res) => {
     }
 })
 
-const generateRecipeRecommendations = async (recipe) => {
+const generateRecipeRecommendations = async (recetteId) => {
+    const recipe = Recette.findByPk(recetteId)
     try {
         console.log('Recipe details:', recipe);
 
-        const prompt = `Proposez des recettes similaires à : "${recipe.nom}". Ingrédients : ${recipe.ingredients.join(', ')}.`;
+        const prompt = `Proposez des recettes similaires à : "${recipe.nom}".`;
         console.log('Prompt:', prompt);
 
-        const openAiResponse = await openaiClient.completions.create({
-            engine: 'text-davinci-003',
-            prompt,
-            max_tokens: 150,
+        const openAiResponse = await openaiClient.chat.completions.create({
+            model: 'gpt-3.5-turbo',
+            messages: [
+                {
+                    role: 'system',
+                    content:
+                    "Propose moi des recettes en fonctions de la recette que je consulte et de mes recettes favorites"  
+                },
+                {
+                    role: 'user',
+                    content: prompt,
+                },
+            ],
         });
 
         const recommendations = openAiResponse.choices[0].text.trim();
