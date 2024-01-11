@@ -1,4 +1,20 @@
+import AuthService from "../services/authService";
+import {loginUser} from "../services/authService";
+import React, {useState} from "react";
+import router from "../router";
+
 function Log(){
+    const [username, setUsername] = useState();
+    const [password, setPassword] = useState();
+
+    const handleLogin = async ()=>{
+        try{
+            const userData = await loginUser(username, password);
+
+        }catch(error){
+            console.error('Erreur lors de la connexion :', error.message)
+        }
+    }
     return (
         <div className="Auth-form-container col-lg-4 m-auto mt-5">
             <form className="Auth-form">
