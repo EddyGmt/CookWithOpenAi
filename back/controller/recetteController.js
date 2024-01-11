@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler')
 const {Recette} = require('../db/models/recette.model');
 const openai = require('openai')
 const {Sequelize} = require("sequelize");
+const {Notation} = require("../db/models");
 require('dotenv').config();
 
 //Clé API POUR OpenAi
@@ -220,4 +221,4 @@ if (recommendations) {
 }
 });
 
-module.exports = {createRecipe, searchRecipe, generateIngredients, getRecipeWithRecommendations, updateRecipeNotationCommentary}
+module.exports = {createRecipe, searchRecipe, generateIngredients, getRecipeWithRecommendations, updateRecipeNotationCommentary, generateAccompagnement}

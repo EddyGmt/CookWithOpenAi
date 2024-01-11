@@ -11,6 +11,8 @@ const {
 const {Recette} = require("../db/models/recette.model");
 const openai = require("openai");
 const {Sequelize} = require("sequelize");
+const { protect } = require('../middleware/authMiddleware')
+
 
 const openaiApiKey = process.env.OPENAI_API_KEY;
 const openaiClient = new openai({key: openaiApiKey});
@@ -19,8 +21,7 @@ router.post('/create', createRecipe);
 router.post('/search-recette', searchRecipe);
 router.get('/generer-liste-de-course/:id', generateIngredients);
 router.get('/:id', getRecipeWithRecommendations);
-router.put('/:id/notation-commentary', updateRecipeNotationCommentary);
-
+router.put('/:id/notation-commentary', protect, updateRecipeNotationCommentary);
 
 router.get('/generer-accompagnements/:id', generateAccompagnement);
 

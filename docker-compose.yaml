@@ -4,7 +4,7 @@ services:
   db:
     image: postgres
     ports:
-      - 5432:5432
+      - "5432:5432"
     environment:
       POSTGRES_USER: pgUser
       POSTGRES_PASSWORD: pgPassword
@@ -16,7 +16,7 @@ services:
     depends_on:
       - db
     ports:
-      - 8080:8080
+      - "8080:8080"
     environment:
       ADMINER_DEFAULT_USER: ${POSTGRES_USER:-pgUser}
       ADMINER_DEFAULT_PASSWORD: ${POSTGRES_PASSWORD:-pgPassword}
@@ -27,7 +27,7 @@ services:
   server:
     image: node
     ports:
-      - 5000:3000
+      - "5000:5000"
     volumes:
       - ./back:/usr/node/app
     working_dir: /usr/node/app
@@ -36,3 +36,11 @@ services:
       JWT_SECRET: ImAstrongSecret
       REFRESH_JWT_SECRET: 1294ImAstrongSecret
     command: "sh -c 'npm install && npm run server'"
+#  client:
+#    image: node:14-alpine
+#    ports:
+#      - "5173:5173"
+#    volumes:
+#      - ./front-app:/app
+#    working_dir: /app
+#    command: "sh -c 'npm install && npm start'"

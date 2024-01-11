@@ -2,7 +2,7 @@ const db = require('../index');
 const User = require('./user.model');
 const {Recette} = require('./recette.model');
 const UserRecette = require('./userRecette.model');
-const Notation = require('./notation.model'); 
+const {Notation} = require('./notation.model');
 const ContreIndication = require('./contreIndications.model');
 
 

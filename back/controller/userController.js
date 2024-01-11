@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
-const {User, Recette, UserRecette} = require('../db/models');
+const {Recette, UserRecette} = require('../db/models');
+const {User} = require('../db/models')
 const jwt = require('jsonwebtoken')
 
 const loginUser = asyncHandler(async (req, res) => {
