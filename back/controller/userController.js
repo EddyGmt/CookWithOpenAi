@@ -1,5 +1,5 @@
 const asyncHandler = require('express-async-handler');
-const {Recette, UserRecette} = require('../db/models');
+const {Recette, UserRecette, ContreIndication} = require('../db/models');
 const {User} = require('../db/models')
 const jwt = require('jsonwebtoken')
 
@@ -37,6 +37,40 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 });
 
+const addContreIndication = asyncHandler(async (req, res) =>{
+    const userId = req.user;
+    const {type} = req.body;
+    try{
+        const user = await User.findByPk(userId.id);
+        if (!user) {
+            return res.status(404).json({success: false, error: 'Utilisateur non trouvé'});
+        }
+        let contreIndication = await ContreIndication.findOne({
+            where: {
+                UserId: userId.id,
+                type: [type],
+            },
+        });
+        if (contreIndication) {
+            contreIndication.type.push(type);
+            await contreIndication.save();
+        } else {
+            contreIndication = await ContreIndication.create({
+                UserId: userId,
+                type: [type],
+            });
+        }
+
+        res.status(201).json({
+            userId: userId.id,
+            type:[type]
+        });
+
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ success: false, error: 'Erreur interne du serveur' });
+    }
+})
 
 const addToFavorites = asyncHandler(async (req, res) => {
     const recipeId  = req.params;
@@ -52,15 +86,16 @@ const addToFavorites = asyncHandler(async (req, res) => {
 
         const recette = await Recette.findByPk(recipeId.id);
         if (!recette) {
-            return res.status(404).json({success: false, error: 'Recette non trouvée'});
+            return res.status(404).json({ success: false, error: 'Recette non trouvée' });
         }
 
-        await user.addFavoris(recette);
+        // Assurez-vous que vous utilisez la variable correcte pour l'utilisateur
+        await userid.addFavoris(recette);
 
-        res.status(200).json({success: true, message: 'Recette ajoutée aux favoris'});
+        res.status(200).json({ success: true, message: 'Recette ajoutée aux favoris' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({success: false, error: 'Erreur interne du serveur'});
+        res.status(500).json({ success: false, error: 'Erreur interne du serveur' });
     }
 });
 
@@ -121,4 +156,4 @@ const generateToken = (id) => {
     })
 }
 
-module.exports = {addToFavorites, removeFromFavorites, loginUser, getAllUserFavoris};
+module.exports = {addToFavorites, removeFromFavorites, loginUser, getAllUserFavoris, addContreIndication};

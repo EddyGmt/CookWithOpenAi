@@ -42,19 +42,14 @@ const createRecipe = asyncHandler(async (req, res) => {
 })
 
 const updateRecipeNotationCommentary = asyncHandler(async (req, res) => {
-
-    if (!req.user) {
-        return res.status(401).json({ success: false, error: 'Utilisateur non authentifié' });
-    }
-
     const recetteId = req.params.id;
     const userId = req.user.id;
-
-
-
     const { note, comment } = req.body;
-
     try {
+        if (!req.user) {
+            return res.status(401).json({ success: false, error: 'Utilisateur non authentifié' });
+        }
+
         const recette = await Recette.findByPk(recetteId);
 
         if (!recette) {
@@ -78,10 +73,8 @@ const updateRecipeNotationCommentary = asyncHandler(async (req, res) => {
     }
 });
 
-
-
 const searchRecipe = asyncHandler(async (req, res) => {
-    const {recherhce} = req.body;
+    const {recherche} = req.body;
 
     if (query === undefined || query === null) {
         // Gérer le cas où query n'est pas défini
@@ -106,7 +99,7 @@ const searchRecipe = asyncHandler(async (req, res) => {
     try {
         const openaiResponse = await openaiClient.completions.create({
             engine: 'text-davinci-003',
-            prompt: `Recette de cuisine: ${recherhce}`,
+            prompt: `Recette de cuisine: ${recherche}`,
             max_tokens: 150
         });
 
@@ -186,7 +179,7 @@ const generateAccompagnement = asyncHandler(async (req, res) => {
 })
 
 const generateRecipeRecommendations = async (recetteId) => {
-    const recipe = Recette.findByPk(recetteId)
+    const recipe = await Recette.findByPk(recetteId)
     try {
         console.log('Recipe details:', recipe);
 
@@ -198,8 +191,7 @@ const generateRecipeRecommendations = async (recetteId) => {
             messages: [
                 {
                     role: 'system',
-                    content:
-                    "Propose moi des recettes en fonctions de la recette que je consulte et de mes recettes favorites"  
+                    content: "Propose des recettes en fonctions de la recette que je consulte et de mes recettes favorites"
                 },
                 {
                     role: 'user',
@@ -208,9 +200,9 @@ const generateRecipeRecommendations = async (recetteId) => {
             ],
         });
 
-        const recommendations = openAiResponse.choices[0].text.trim();
+        const recommendations = openAiResponse.choices.map((choice) => choice.message.content);
         console.log('Recommendations:', recommendations);
-
+        res.json({recommendations})
         return recommendations;
     } catch (error) {
         console.error(error);
@@ -220,6 +212,7 @@ const generateRecipeRecommendations = async (recetteId) => {
 
 const getRecipeWithRecommendations = asyncHandler(async (req, res) => {
     const recetteId = req.params.id;
+    const userId = req.user;
     const recette = await Recette.findByPk(recetteId);
 
     const recommendations = await generateRecipeRecommendations(recetteId);

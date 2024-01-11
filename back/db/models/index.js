@@ -20,9 +20,17 @@ Recette.hasMany(Notation, {
 
 User.hasMany(ContreIndication, {
     foreignKey: {
-        name: 'ContreIndicationId'
+        name: 'userId',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
     }
 });
+
+User.hasMany(Notation,{
+    foreignKey: 'userId',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+})
 
 
 module.exports = {
