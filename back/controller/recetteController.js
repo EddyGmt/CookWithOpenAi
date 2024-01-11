@@ -213,6 +213,7 @@ const generateRecipeRecommendations = async (recetteId) => {
 
 const getRecipeWithRecommendations = asyncHandler(async (req, res) => {
     const recetteId = req.params.id;
+    const userId = req.user;
     const recette = await Recette.findByPk(recetteId);
 
     const recommendations = await generateRecipeRecommendations(recette);
