@@ -3,7 +3,7 @@ const router = express.Router();
 const {protect} = require("../middleware/authMiddleware");
 const {
     addToFavorites,
-    removeFromFavorites,
+    deleteFavorie,
     loginUser,
     getAllUserFavoris,
     addContreIndication
@@ -11,7 +11,7 @@ const {
 
 
 router.post('/addFavorite/:id', protect, addToFavorites);
-router.post('/removeFavorite', removeFromFavorites);
+router.delete('/deleteFavorie/:id', protect, deleteFavorie);
 router.post('/login', loginUser);
 router.post('/add-contre-indication', protect, addContreIndication);
 router.get('/getAllUserFavoris', protect, getAllUserFavoris);

@@ -127,28 +127,32 @@ const getAllUserFavoris= asyncHandler(async (req, res) => {
 
 
 
-const removeFromFavorites = asyncHandler(async (req, res) => {
-    const {userId, recipeId} = req.body;
+const deleteFavorie = asyncHandler(async (req, res) => {
+    const  recetteId  = req.params;
+    const  userId  = req.user;
 
     try {
-        const user = await User.findByPk(userId);
+        const user = await User.findByPk(userId.id);
         if (!user) {
-            return res.status(404).json({success: false, error: 'Utilisateur non trouvé'});
+            return res.status(404).json({ success: false, error: 'Utilisateur non trouvé' });
         }
 
-        const recette = await Recette.findByPk(recipeId);
+        const recette = await Recette.findByPk(recetteId.id);
         if (!recette) {
-            return res.status(404).json({success: false, error: 'Recette non trouvée'});
+            return res.status(404).json({ success: false, error: 'Recette non trouvée' });
         }
 
-        await user.removeFavoris(recette);
+        await userId.removeFavoris(recette);
 
-        res.status(200).json({success: true, message: 'Recette retirée des favoris'});
+        res.status(200).json({ success: true, message: 'Recette supprimée des favoris' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({success: false, error: 'Erreur interne du serveur'});
+        res.status(500).json({ success: false, error: 'Erreur interne du serveur' });
     }
 });
+
+module.exports = deleteFavorie;
+
 
 const generateToken = (id) => {
     return jwt.sign({id}, process.env.JWT_SECRET, {
@@ -156,4 +160,4 @@ const generateToken = (id) => {
     })
 }
 
-module.exports = {addToFavorites, removeFromFavorites, loginUser, getAllUserFavoris, addContreIndication};
+module.exports = {addToFavorites, deleteFavorie, loginUser, getAllUserFavoris, addContreIndication};
