@@ -222,7 +222,7 @@ const getRecipeWithRecommendations = asyncHandler(async (req, res) => {
     const recetteId = req.params.id;
     const recette = await Recette.findByPk(recetteId);
 
-    const recommendations = await generateRecipeRecommendations(recette);
+    const recommendations = await generateRecipeRecommendations(recetteId);
 
 if (recommendations) {
     return res.status(200).json({ success: true, data: recette, recommendations });
@@ -230,5 +230,23 @@ if (recommendations) {
     return res.status(500).json({ success: false, error: 'Erreur lors de la génération de recommandations' });
 }
 });
+
+
+// const getAllNotationByRecipeId = asyncHandler(async (req, res) => {
+//     const userId = req.user.id; 
+  
+//     try {
+//       const allFavoris = await UserRecette.findAll({
+//         where: { userId: userId },
+//         include: [Recette],
+//       });
+  
+//       return res.status(200).json({ success: true, data: allFavoris });
+//     } catch (error) {
+//       console.error('Erreur lors de la récupération des recettes favorites', error);
+//       return res.status(500).json({ success: false, error: 'Erreur lors de la récupération des recettes favorites' });
+//     }
+//   });
+  
 
 module.exports = {createRecipe, searchRecipe, generateIngredients, getRecipeWithRecommendations, updateRecipeNotationCommentary, generateAccompagnement}

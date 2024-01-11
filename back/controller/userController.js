@@ -39,15 +39,18 @@ const loginUser = asyncHandler(async (req, res) => {
 
 
 const addToFavorites = asyncHandler(async (req, res) => {
-    const {userId, recipeId} = req.body;
+    const recipeId  = req.params;
+    const userId  = req.user;
+
+    console.log('userId', userId);
 
     try {
-        const user = await User.findByPk(userId);
+        const user = await User.findByPk(userId.id);
         if (!user) {
             return res.status(404).json({success: false, error: 'Utilisateur non trouvé'});
         }
 
-        const recette = await Recette.findByPk(recipeId);
+        const recette = await Recette.findByPk(recipeId.id);
         if (!recette) {
             return res.status(404).json({success: false, error: 'Recette non trouvée'});
         }
@@ -60,6 +63,34 @@ const addToFavorites = asyncHandler(async (req, res) => {
         res.status(500).json({success: false, error: 'Erreur interne du serveur'});
     }
 });
+
+const getAllUserFavoris= asyncHandler(async (req, res) => {
+  const userId = req.user;
+
+  console.log("userId", userId);
+  try {
+    const user = await User.findByPk(userId.id, {
+      include: [{
+        model: Recette,
+        as: 'favoris',
+        through: UserRecette,
+      }],
+    });
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'Utilisateur non trouvé' });
+    }
+
+    const favoris = user.favoris;
+
+    return res.status(200).json({ success: true, data: favoris });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, error: 'Erreur lors de la récupération des favoris' });
+  }
+});
+
+
 
 const removeFromFavorites = asyncHandler(async (req, res) => {
     const {userId, recipeId} = req.body;
@@ -90,4 +121,4 @@ const generateToken = (id) => {
     })
 }
 
-module.exports = {addToFavorites, removeFromFavorites, loginUser};
+module.exports = {addToFavorites, removeFromFavorites, loginUser, getAllUserFavoris};
