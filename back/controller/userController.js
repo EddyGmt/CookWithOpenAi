@@ -39,27 +39,25 @@ const loginUser = asyncHandler(async (req, res) => {
 
 
 const addToFavorites = asyncHandler(async (req, res) => {
-    const {userId, recipeId} = req.body;
+    const { recetteId } = req.params;
+    const { userid } = req.user;
 
     try {
-        const user = await User.findByPk(userId);
-        if (!user) {
-            return res.status(404).json({success: false, error: 'Utilisateur non trouvé'});
-        }
-
-        const recette = await Recette.findByPk(recipeId);
+        const recette = await Recette.findByPk(recetteId);
         if (!recette) {
-            return res.status(404).json({success: false, error: 'Recette non trouvée'});
+            return res.status(404).json({ success: false, error: 'Recette non trouvée' });
         }
 
-        await user.addFavoris(recette);
+        // Assurez-vous que vous utilisez la variable correcte pour l'utilisateur
+        await userid.addFavoris(recette);
 
-        res.status(200).json({success: true, message: 'Recette ajoutée aux favoris'});
+        res.status(200).json({ success: true, message: 'Recette ajoutée aux favoris' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({success: false, error: 'Erreur interne du serveur'});
+        res.status(500).json({ success: false, error: 'Erreur interne du serveur' });
     }
 });
+
 
 const removeFromFavorites = asyncHandler(async (req, res) => {
     const {userId, recipeId} = req.body;

@@ -42,19 +42,14 @@ const createRecipe = asyncHandler(async (req, res) => {
 })
 
 const updateRecipeNotationCommentary = asyncHandler(async (req, res) => {
-
-    if (!req.user) {
-        return res.status(401).json({ success: false, error: 'Utilisateur non authentifié' });
-    }
-
     const recetteId = req.params.id;
     const userId = req.user.id;
-
-
-
     const { note, comment } = req.body;
-
     try {
+        if (!req.user) {
+            return res.status(401).json({ success: false, error: 'Utilisateur non authentifié' });
+        }
+
         const recette = await Recette.findByPk(recetteId);
 
         if (!recette) {
@@ -77,8 +72,6 @@ const updateRecipeNotationCommentary = asyncHandler(async (req, res) => {
         return res.status(500).json({ success: false, error: 'Erreur lors de la mise à jour de la notation' });
     }
 });
-
-
 
 const searchRecipe = asyncHandler(async (req, res) => {
     const {recherhce} = req.body;
@@ -208,7 +201,7 @@ const generateRecipeRecommendations = async (recetteId) => {
             ],
         });
 
-        const recommendations = openAiResponse.choices[0].text.trim();
+        const recommendations = openAiResponse.choices.map((choice) => choice.message.content);
         console.log('Recommendations:', recommendations);
 
         return recommendations;

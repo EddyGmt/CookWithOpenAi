@@ -24,6 +24,12 @@ User.hasMany(ContreIndication, {
     }
 });
 
+User.hasMany(Notation,{
+    foreignKey: 'userId',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+})
+
 
 module.exports = {
     User,
