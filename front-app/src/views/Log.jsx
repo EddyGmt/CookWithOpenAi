@@ -1,18 +1,23 @@
-import AuthService from "../services/authService";
 import {loginUser} from "../services/authService";
 import React, {useState} from "react";
-import router from "../router";
+import swal from 'sweetalert';
+
+
 
 function Log(){
     const [username, setUsername] = useState();
     const [password, setPassword] = useState();
 
-    const handleLogin = async ()=>{
-        try{
-            const userData = await loginUser(username, password);
-
-        }catch(error){
-            console.error('Erreur lors de la connexion :', error.message)
+    const handleLogin = async e =>{
+        e.preventDefault();
+        const response = await loginUser(username, password);
+        console.log('RESPONSE', response)
+        if('token' in response){
+                    localStorage.setItem('token',response['token']);
+                    localStorage.setItem('user', JSON.stringify(response['user']));
+                    window.location.href = "/home";
+        }else{
+            swal("Failed", response.message, "error");
         }
     }
     return (
@@ -23,9 +28,11 @@ function Log(){
                     <div className="form-group mt-3">
                         <label>Username</label>
                         <input
-                            type="username"
+                            type="text"
                             className="form-control mt-1"
                             placeholder="Username"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
                         />
                     </div>
                     <div className="form-group mt-3">
@@ -34,10 +41,13 @@ function Log(){
                             type="password"
                             className="form-control mt-1"
                             placeholder="Mot de passe"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+
                         />
                     </div>
                     <div className="d-grid gap-2 mt-3">
-                        <button type="submit" className="btn btn-primary">
+                        <button type="submit" className="btn btn-primary" onClick={handleLogin}>
                             Se connecter
                         </button>
                     </div>
