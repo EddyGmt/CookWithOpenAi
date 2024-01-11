@@ -235,10 +235,7 @@ const getAllNotationAndComments = asyncHandler(async (req, res) => {
           };
       
           const notationsAndComments = await Notation.findAll({
-            where: { recetteId: recipeId },
-            include: [
-              { model: User, as: 'user', attributes: ['id', 'username'] },
-            ],
+            where: { recetteId: recetteId }
           });
       
           return res.status(200).json({ success: true, data: notationsAndComments });

@@ -6,7 +6,8 @@ const {
     generateIngredients,
     getRecipeWithRecommendations,
     updateRecipeNotationCommentary,
-    generateAccompagnement
+    generateAccompagnement,
+    getAllNotationAndComments
 } = require('../controller/recetteController')
 const {Recette} = require("../db/models/recette.model");
 const openai = require("openai");
@@ -24,6 +25,8 @@ router.get('/:id', getRecipeWithRecommendations);
 router.put('/:id/notation-commentary', protect, updateRecipeNotationCommentary);
 
 router.get('/generer-accompagnements/:id', generateAccompagnement);
+router.get('/all-notations-commentaires/:id', getAllNotationAndComments);
+
 
 router.post('/search', async (req, res) => {
     const {nom} = req.body;

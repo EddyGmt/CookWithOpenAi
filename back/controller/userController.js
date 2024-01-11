@@ -90,7 +90,7 @@ const addToFavorites = asyncHandler(async (req, res) => {
         }
 
         // Assurez-vous que vous utilisez la variable correcte pour l'utilisateur
-        await userid.addFavoris(recette);
+        await userId.addFavoris(recette);
 
         res.status(200).json({ success: true, message: 'Recette ajoutée aux favoris' });
     } catch (error) {
