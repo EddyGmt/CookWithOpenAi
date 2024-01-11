@@ -232,21 +232,28 @@ if (recommendations) {
 });
 
 
-// const getAllNotationByRecipeId = asyncHandler(async (req, res) => {
-//     const userId = req.user.id; 
+const getAllNotationAndComments = asyncHandler(async (req, res) => {
+    const recetteId = req.params.id;
+    const recette = await Recette.findByPk(recetteId) 
   
-//     try {
-//       const allFavoris = await UserRecette.findAll({
-//         where: { userId: userId },
-//         include: [Recette],
-//       });
-  
-//       return res.status(200).json({ success: true, data: allFavoris });
-//     } catch (error) {
-//       console.error('Erreur lors de la récupération des recettes favorites', error);
-//       return res.status(500).json({ success: false, error: 'Erreur lors de la récupération des recettes favorites' });
-//     }
-//   });
+    try {
+        if (!recette) {
+            return res.status(404).json({ success: false, error: 'Recette non trouvée' });
+          };
+      
+          const notationsAndComments = await Notation.findAll({
+            where: { recetteId: recipeId },
+            include: [
+              { model: User, as: 'user', attributes: ['id', 'username'] },
+            ],
+          });
+      
+          return res.status(200).json({ success: true, data: notationsAndComments });
+        } catch (error) {
+          console.error(error);
+          return res.status(500).json({ success: false, error: 'Erreur interne du serveur' });
+        }
+  });
   
 
-module.exports = {createRecipe, searchRecipe, generateIngredients, getRecipeWithRecommendations, updateRecipeNotationCommentary, generateAccompagnement}
+module.exports = {createRecipe, searchRecipe, generateIngredients, getRecipeWithRecommendations, updateRecipeNotationCommentary, generateAccompagnement, getAllNotationAndComments}
