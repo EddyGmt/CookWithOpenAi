@@ -8,6 +8,7 @@ import{
 import './index.css';
 import Log from "./views/Log";
 import Home from "./views/Home";
+import Profil from './views/Profil';
 
 const router = createBrowserRouter([
     {
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
     {
         path:'/home',
         element: <Home/>
+    },
+    {
+        path:'/profil',
+        element: <Profil/>
     }
 ]);
 

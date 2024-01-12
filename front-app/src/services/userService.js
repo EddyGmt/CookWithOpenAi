@@ -20,19 +20,22 @@ export async function AddFavorite(_recetteId, _token) {
     }
 }
 
-export async function AddContreIndication(_type, _token) {
+export async function AddContreIndication(_type) {
+    const token = localStorage.getItem("token");
+
     const data = {_type}
     try {
         const response = await fetch(URL + '/add-contre-indication', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + _token
+                'Authorization': 'Bearer ' + token
             },
             body: JSON.stringify(data)
         });
         if (response.ok) {
             const aiResponse = await response.json();
+            return aiResponse;
         } else {
             const errorData = await response.json();
             throw new Error(errorData.message);
@@ -42,13 +45,14 @@ export async function AddContreIndication(_type, _token) {
     }
 }
 
-export async function GetAllFavs(_token) {
+export async function GetAllFavs() {
+    const token = localStorage.getItem("token");
     try {
         const response = await fetch(URL + '/getAllUserFavoris', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + _token
+                'Authorization': 'Bearer ' + token
             }
         });
         if (response.ok) {
