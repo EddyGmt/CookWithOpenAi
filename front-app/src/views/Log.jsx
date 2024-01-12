@@ -3,20 +3,19 @@ import React, {useState} from "react";
 import swal from 'sweetalert';
 
 
-
-function Log(){
+function Log() {
     const [username, setUsername] = useState();
     const [password, setPassword] = useState();
 
-    const handleLogin = async e =>{
+    const handleLogin = async e => {
         e.preventDefault();
         const response = await loginUser(username, password);
         console.log('RESPONSE', response)
-        if('token' in response){
-                    localStorage.setItem('token',response['token']);
-                    localStorage.setItem('user', JSON.stringify(response['user']));
-                    window.location.href = "/home";
-        }else{
+        if ('token' in response) {
+            localStorage.setItem('token', response['token']);
+            localStorage.setItem('user', JSON.stringify(response['user']));
+            window.location.href = "/home";
+        } else {
             swal("Failed", response.message, "error");
         }
     }

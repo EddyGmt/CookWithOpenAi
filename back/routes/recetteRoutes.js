@@ -12,7 +12,7 @@ const {
 const {Recette} = require("../db/models/recette.model");
 const openai = require("openai");
 const {Sequelize} = require("sequelize");
-const { protect } = require('../middleware/authMiddleware')
+const {protect} = require('../middleware/authMiddleware')
 
 
 const openaiApiKey = process.env.OPENAI_API_KEY;
@@ -29,46 +29,56 @@ router.get('/all-notations-commentaires/:id', getAllNotationAndComments);
 
 
 router.post('/search', async (req, res) => {
-    const {nom} = req.body;
+        const {nom} = req.body;
 
-    try {
-        // 1. Récupération des données depuis la base de données
-        const recipes = await Recette.findAll({
-            where: {
-                nom: {
-                    [Sequelize.Op.iLike]: `%${nom}%`,
-                },
-            },
-        });
+        try {
+            // 1. Récupération des données depuis la base de données
+            const recipesFromDB = await Recette.findAll();
+            const recipeListString = recipesFromDB.map((recette) => {
+                return `${recette.nom} :  ${recette.ingredients.join(', ')}`;
+            });
+            const formattedList = recipeListString.join('\n');
 
-        // 1. Formatage de la requête pour OpenAI GPT-3.5-turbo
-        const prompt = 'Bonjour je veux des idées de recettes qui correspondent à ce plat et autour de ce plat : ${nom}';
-
-        // 2. Appel à OpenAI GPT-3.5-turbo
-        const completions = await openaiClient.chat.completions.create({
-            model: 'gpt-3.5-turbo',
-            messages: [
-                {
-                    role: 'system',
-                    content:
-                        "Tu es un moteur de recherche de recettes. Réponds aux requêtes des utilisateurs en donnant des idées de recettes qui correspondent à la recherche et à celle stockée en base de données. À partir de maintenant, dès que tu recevras une requête, tu renverras du texte dans lequel tu donneras des idées de recettes qui correspondent à la recherche avec les détails de ces recettes. Tu peux dire bonjour quand on te dit bonjour sinon pas besoin de faire des phrases de courtoisies.",
-                },
-                {
-                    role: 'user',
-                    content: prompt,
-                },
-            ],
-        });
+            const prompt = 'Bonjour je veux des idées de recettes qui correspondent à ce plat et autour de ce plat : ' + nom;
 
 
-        // 3. Traitement des réponses de OpenAI GPT-3.5-turbo
-        const ideas = completions.choices.map((choice) => choice.message.content);
+// 2. Appel à OpenAI GPT-3.5-turbo
+            const completions = await openaiClient.chat.completions.create({
+                model: 'gpt-3.5-turbo',
+                messages: [
+                    {
+                        role: 'system',
+                        content:
+                            `Tu es un moteur de recherche de recettes. Réponds aux requêtes des utilisateurs en donnant des idées de 
+                        recettes qui correspondent à la recherche et à celle stockée dans ta base de données ${formattedList}. À partir de
+                         maintenant, dès que tu recevras une requête, tu renverras un objet json au format 
+                         {"img": , "nom": , "nb_personnes": , "ingredients":[]}.`,
+                    },
+                    {
+                        role: 'user',
+                        content: prompt,
+                    },
+                ],
+            });
+            const ideasFromGPT = completions.choices.map((choice) => choice.message);
+            const filteredIdeas = ideasFromGPT.filter((idea) => {
+                // Vérifier si l'idée générée par GPT-3.5-turbo contient le nom d'une recette de la base de données
+                return recipeListString
+            });
 
-        res.json({ideas});
-    } catch (error) {
-        console.error('Erreur lors de la recherche :', error);
-        res.status(500).json({error: 'Erreur lors de la recherche'});
+            console.log('Idées générées par GPT-3.5-turbo :', ideasFromGPT);
+            console.log('Idées filtrées :', filteredIdeas);
+
+            res.json({ideas: filteredIdeas});
+
+
+        } catch
+            (error) {
+            console.error('Erreur lors de la recherche :', error);
+            res.status(500).json({error: 'Erreur lors de la recherche'});
+        }
     }
-});
+)
+;
 
 module.exports = router;
