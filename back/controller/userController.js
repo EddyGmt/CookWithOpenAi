@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
-const {Recette, UserRecette, ContreIndication} = require('../db/models');
+const {Recette, UserRecette} = require('../db/models');
+const ContreIndication = require('../db/models/contreIndications.model')
 const {User} = require('../db/models')
 const jwt = require('jsonwebtoken')
 
@@ -47,7 +48,7 @@ const addContreIndication = asyncHandler(async (req, res) =>{
         }
         let contreIndication = await ContreIndication.findOne({
             where: {
-                UserId: userId.id,
+                userId: userId.id,  // Utilisez 'userId' au lieu de 'UserId'
                 type: [type],
             },
         });
