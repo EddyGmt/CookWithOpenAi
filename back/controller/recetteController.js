@@ -1,5 +1,7 @@
 const asyncHandler = require('express-async-handler')
 const {Recette} = require('../db/models/recette.model');
+const {User} = require('../db/models');
+const { Op } = require('sequelize');
 const openai = require('openai')
 const {Sequelize} = require("sequelize");
 const {Notation} = require("../db/models");
@@ -178,21 +180,48 @@ const generateAccompagnement = asyncHandler(async (req, res) => {
     }
 })
 
-const generateRecipeRecommendations = async (recetteId) => {
-    const recipe = await Recette.findByPk(recetteId)
+const generateRecipeRecommendations = asyncHandler(async (req, res) => {
+    const recetteId = req.params.id;
+    const  userId  = req.user;
     try {
-        console.log('Recipe details:', recipe);
+        console.log('Recipe details:', recetteId);
 
-        const prompt = `Proposez des recettes similaires à : "${recipe.nom}".`;
-        console.log('Prompt:', prompt);
+        const user = await User.findByPk(userId.id);
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'Utilisateur non trouvé' });
+        }
+
+        const recette = await Recette.findByPk(recetteId);
+        if (!recette) {
+            return res.status(404).json({ success: false, error: 'Recette non trouvée' });
+        }
+
+         // Récupérez les recettes en base de données (ajustez cela selon votre modèle)
+         const otherRecettes = await Recette.findAll({
+            where: {
+                id: { [Op.not]: recetteId }, 
+            },
+           
+        });
+        
+        const otherRecettesFormatted = otherRecettes.map((recette) => {
+          return `${recette.nom} : Ingrédients - ${recette.ingredients.join(', ')}.`;
+            });
+
+        const formattedRecettesList = otherRecettesFormatted.join('\n');
+
+        const prompt = `Proposez des recettes similaires à : "${recette.nom}". Voici la liste des recettes en base de données :\n${formattedRecettesList}`;
+
 
         const openAiResponse = await openaiClient.chat.completions.create({
             model: 'gpt-3.5-turbo',
             messages: [
                 {
                     role: 'system',
-                    content: "Propose des recettes en fonctions de la recette que je consulte et de mes recettes favorites"
-                },
+                    content: `Vous allez recevoir une demande de recommandation de recette de la part d'un utilisateur. À partir de toutes les recettes de votre base de données et des préférences de l'utilisateur, 
+                    vous devez recommander trois recettes pour l'utilisateur. Voici la liste des recettes de votre base de données `,
+                    
+                },                
                 {
                     role: 'user',
                     content: prompt,
@@ -208,21 +237,21 @@ const generateRecipeRecommendations = async (recetteId) => {
         console.error(error);
         throw new Error('Erreur lors de la génération de recommandations');
     }
-};
+})
 
-const getRecipeWithRecommendations = asyncHandler(async (req, res) => {
-    const recetteId = req.params.id;
-    const userId = req.user;
-    const recette = await Recette.findByPk(recetteId);
+// const getRecipeWithRecommendations = asyncHandler(async (req, res) => {
+//     const recetteId = req.params.id;
+//     const userId = req.user;
+//     const recette = await Recette.findByPk(recetteId);
 
-    const recommendations = await generateRecipeRecommendations(recetteId);
+//     const recommendations = await generateRecipeRecommendations(recetteId);
 
-if (recommendations) {
-    return res.status(200).json({ success: true, data: recette, recommendations });
-} else {
-    return res.status(500).json({ success: false, error: 'Erreur lors de la génération de recommandations' });
-}
-});
+// if (recommendations) {
+//     return res.status(200).json({ success: true, data: recette, recommendations });
+// } else {
+//     return res.status(500).json({ success: false, error: 'Erreur lors de la génération de recommandations' });
+// }
+// });
 
 
 const getAllNotationAndComments = asyncHandler(async (req, res) => {
@@ -246,4 +275,4 @@ const getAllNotationAndComments = asyncHandler(async (req, res) => {
   });
   
 
-module.exports = {createRecipe, searchRecipe, generateIngredients, getRecipeWithRecommendations, updateRecipeNotationCommentary, generateAccompagnement, getAllNotationAndComments}
+module.exports = {createRecipe, searchRecipe, generateIngredients, generateRecipeRecommendations, updateRecipeNotationCommentary, generateAccompagnement, getAllNotationAndComments}
