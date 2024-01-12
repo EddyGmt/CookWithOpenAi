@@ -1,8 +1,8 @@
 const URL = "http://localhost:5000/api/recette";
 
 
-export async function SearchRecipe(prompt, token) {
-    const data = {prompt};
+export async function SearchRecipe(nom, token) {
+    const data = {nom};
     try {
         const response = await fetch(URL + '/search', {
             method: 'POST',
@@ -12,6 +12,7 @@ export async function SearchRecipe(prompt, token) {
             },
             body: JSON.stringify(data)
         });
+        console.log('SERVICES', response)
         if (response.ok) {
             const aiResponse = await response.json();
             return aiResponse;

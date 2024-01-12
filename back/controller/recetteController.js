@@ -75,47 +75,6 @@ const updateRecipeNotationCommentary = asyncHandler(async (req, res) => {
     }
 });
 
-const searchRecipe = asyncHandler(async (req, res) => {
-    const {recherche} = req.body;
-
-    if (query === undefined || query === null) {
-        // Gérer le cas où query n'est pas défini
-        res.status(400).json({error: 'Query non défini'});
-        return;
-    }
-    //Requete pour trouver des recettes dans la base de données
-    const recipesFromDB = await Recette.findAll({
-        where: {
-            [Sequelize.Op.or]: [
-                {nom: {[Sequelize.Op.iLike]: `%${query}%`}},
-                {img: {[Sequelize.Op.iLike]: `%${query}%`}},
-                {nb_personnes: {[Sequelize.Op.eq]: query}}, // Utiliser [Sequelize.Op.eq] pour une égalité stricte
-                {ingredients: {[Sequelize.Op.iLike]: `%${query}%`}},
-                {quantites: {[Sequelize.Op.contains]: [BigInt(query)]}},
-                {etapes: {[Sequelize.Op.iLike]: `%${query}%`}},
-            ]
-        }
-    });
-    const multipleResults = [...recipesFromDB];
-
-    try {
-        const openaiResponse = await openaiClient.completions.create({
-            engine: 'text-davinci-003',
-            prompt: `Recette de cuisine: ${recherche}`,
-            max_tokens: 150
-        });
-
-        // Renvoyer une réponse JSON avec les résultats combinés
-        res.json({
-            dbResults: multipleResults,
-        });
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({error: 'Erreur interne du serveur'})
-    }
-})
-
 const generateIngredients = asyncHandler(async (req, res) => {
     const recetteId = req.params.id;
     const recette = await Recette.findByPk(recetteId);
@@ -239,21 +198,6 @@ const generateRecipeRecommendations = asyncHandler(async (req, res) => {
     }
 })
 
-// const getRecipeWithRecommendations = asyncHandler(async (req, res) => {
-//     const recetteId = req.params.id;
-//     const userId = req.user;
-//     const recette = await Recette.findByPk(recetteId);
-
-//     const recommendations = await generateRecipeRecommendations(recetteId);
-
-// if (recommendations) {
-//     return res.status(200).json({ success: true, data: recette, recommendations });
-// } else {
-//     return res.status(500).json({ success: false, error: 'Erreur lors de la génération de recommandations' });
-// }
-// });
-
-
 const getAllNotationAndComments = asyncHandler(async (req, res) => {
     const recetteId = req.params.id;
     const recette = await Recette.findByPk(recetteId) 
@@ -275,4 +219,4 @@ const getAllNotationAndComments = asyncHandler(async (req, res) => {
   });
   
 
-module.exports = {createRecipe, searchRecipe, generateIngredients, generateRecipeRecommendations, updateRecipeNotationCommentary, generateAccompagnement, getAllNotationAndComments}
+module.exports = {createRecipe, generateIngredients, generateRecipeRecommendations, updateRecipeNotationCommentary, generateAccompagnement, getAllNotationAndComments}

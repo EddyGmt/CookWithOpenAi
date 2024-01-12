@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const {
     createRecipe,
-    searchRecipe,
     generateIngredients,
     generateRecipeRecommendations,
     updateRecipeNotationCommentary,
@@ -21,7 +20,6 @@ const openaiApiKey = process.env.OPENAI_API_KEY;
 const openaiClient = new openai({key: openaiApiKey});
 
 router.post('/create', createRecipe);
-router.post('/search-recette', searchRecipe);
 router.get('/generer-liste-de-course/:id', generateIngredients);
 router.get('/:id', protect, generateRecipeRecommendations);
 router.put('/:id/notation-commentary', protect, updateRecipeNotationCommentary);
