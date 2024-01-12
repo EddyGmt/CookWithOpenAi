@@ -53,7 +53,7 @@ router.post('/search', async (req, res) => {
 
 
                 // Créez le prompt en incluant les détails des recettes
-        const prompt = `Bonjour, je veux des idées de recettes pour un plats comme ça : ${nom}. Voici la liste des recettes de votre base de données :\n${allRecipeListString}`;
+        const prompt = `Bonjour, je veux t'es réponses en objet json et uniquement en objet JSON,  je veux des idées de recettes pour un plats comme ça : ${nom}.   Voici la liste des recettes de votre base de données :\n${allRecipeListString}`;
         
         
         const openAiResponse = await openaiClient.chat.completions.create({
@@ -62,7 +62,7 @@ router.post('/search', async (req, res) => {
                 {
                     role: 'system',
                     content:
-                        "Tu es un moteur de recherche de recettes. Réponds aux requêtes des utilisateurs en donnant une liste de recettes qui corresponde à leurs recherche en fonctions des recettes que tu as stockée en base de données. À partir de maintenant, dès que tu recevras une requête, tu renverras du texte dans lequel tu donneras des idées de recettes qui correspondent à la recherche avec les détails de ces recettes. Tu peux dire bonjour quand on te dit bonjour sinon pas besoin de faire des phrases de courtoisies.",
+                        "Tu es un moteur de recherche de recettes. Tu doit renvoyer les  recette uniquement au objet JSON  et au format {id, img, nom, nb de personne}. Réponds aux requêtes des utilisateurs en donnant une liste de recettes qui corresponde à leurs recherche en fonctions des recettes que tu as stockée en base de données. À partir de maintenant, dès que tu recevras une requête, tu renverras du texte dans lequel tu donneras des idées de recettes qui correspondent à la recherche avec les détails de ces recettes. Tu peux dire bonjour quand on te dit bonjour sinon pas besoin de faire des phrases de courtoisies. "
                 },
                 {
                     role: 'user',
