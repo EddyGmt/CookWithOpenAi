@@ -4,7 +4,7 @@ const {
     createRecipe,
     searchRecipe,
     generateIngredients,
-    getRecipeWithRecommendations,
+    generateRecipeRecommendations,
     updateRecipeNotationCommentary,
     generateAccompagnement,
     getAllNotationAndComments
@@ -12,7 +12,7 @@ const {
 const {Recette} = require("../db/models/recette.model");
 const openai = require("openai");
 const {Sequelize} = require("sequelize");
-const {protect} = require('../middleware/authMiddleware')
+const { protect } = require('../middleware/authMiddleware')
 
 
 const openaiApiKey = process.env.OPENAI_API_KEY;
@@ -21,7 +21,7 @@ const openaiClient = new openai({key: openaiApiKey});
 router.post('/create', createRecipe);
 router.post('/search-recette', searchRecipe);
 router.get('/generer-liste-de-course/:id', generateIngredients);
-router.get('/:id', getRecipeWithRecommendations);
+router.get('/:id', protect, generateRecipeRecommendations);
 router.put('/:id/notation-commentary', protect, updateRecipeNotationCommentary);
 
 router.get('/generer-accompagnements/:id', generateAccompagnement);
@@ -29,56 +29,57 @@ router.get('/all-notations-commentaires/:id', getAllNotationAndComments);
 
 
 router.post('/search', async (req, res) => {
-        const {nom} = req.body;
+    const {nom} = req.body;
 
-        try {
-            // 1. Récupération des données depuis la base de données
-            const recipesFromDB = await Recette.findAll();
-            const recipeListString = recipesFromDB.map((recette) => {
-                return `${recette.nom} :  ${recette.ingredients.join(', ')}`;
-            });
-            const formattedList = recipeListString.join('\n');
+    try {
+        console.log('Recherche de recettes avec le nom:', nom);
 
-            const prompt = 'Bonjour je veux des idées de recettes qui correspondent à ce plat et autour de ce plat : ' + nom;
+        const allRecettes = await Recette.findAll();
 
-
-// 2. Appel à OpenAI GPT-3.5-turbo
-            const completions = await openaiClient.chat.completions.create({
-                model: 'gpt-3.5-turbo',
-                messages: [
-                    {
-                        role: 'system',
-                        content:
-                            `Tu es un moteur de recherche de recettes. Réponds aux requêtes des utilisateurs en donnant des idées de 
-                        recettes qui correspondent à la recherche et à celle stockée dans ta base de données ${formattedList}. À partir de
-                         maintenant, dès que tu recevras une requête, tu renverras un objet json au format 
-                         {"img": , "nom": , "nb_personnes": , "ingredients":[]}.`,
-                    },
-                    {
-                        role: 'user',
-                        content: prompt,
-                    },
-                ],
-            });
-            const ideasFromGPT = completions.choices.map((choice) => choice.message);
-            const filteredIdeas = ideasFromGPT.filter((idea) => {
-                // Vérifier si l'idée générée par GPT-3.5-turbo contient le nom d'une recette de la base de données
-                return recipeListString
-            });
-
-            console.log('Idées générées par GPT-3.5-turbo :', ideasFromGPT);
-            console.log('Idées filtrées :', filteredIdeas);
-
-            res.json({ideas: filteredIdeas});
+        // Créez une liste des détails de toutes les recettes
+        const allRecipeListString = allRecettes.map(recette => `Nom: ${recette.nom}, Ingrédients: ${recette.ingredients.join(', ')}, Nb Personnes: ${recette.nb_personnes}`).join('\n');
+        console.log("LISTE DE TOUTES LES RECETTES", allRecipeListString);
 
 
-        } catch
-            (error) {
-            console.error('Erreur lors de la recherche :', error);
-            res.status(500).json({error: 'Erreur lors de la recherche'});
-        }
+        const recetteName = await Recette.findAll({
+            where: {
+                nom: {
+                    [Sequelize.Op.iLike]: `%${nom}%`,
+                },
+            },
+        });
+
+
+
+
+                // Créez le prompt en incluant les détails des recettes
+        const prompt = `Bonjour, je veux des idées de recettes qui correspondent à ce plat et autour de ce plat : ${nom}. Voici la liste des recettes de votre base de données :\n${allRecipeListString}`;
+
+
+        const openAiResponse = await openaiClient.chat.completions.create({
+            model: 'gpt-3.5-turbo',
+            messages: [
+                {
+                    role: 'system',
+                    content:
+                        "Tu es un moteur de recherche de recettes. Réponds aux requêtes des utilisateurs en donnant leurs recette rechercher, ainsi que des idées de recettes qui correspondent à leurs recherche et à celle stockée en base de données. À partir de maintenant, dès que tu recevras une requête, tu renverras du texte dans lequel tu donneras des idées de recettes qui correspondent à la recherche avec les détails de ces recettes. Tu peux dire bonjour quand on te dit bonjour sinon pas besoin de faire des phrases de courtoisies.",
+                },
+                {
+                    role: 'user',
+                    content: prompt,
+                },
+            ],
+        });
+
+
+        const ideas = openAiResponse.choices.map((choice) => choice.message.content);
+        console.log('Ideas:', ideas);
+        res.json({ideas})
+        return ideas;
+    } catch (error) {
+        console.error(error);
+        throw new Error('Erreur lors de la génération de idées');
     }
-)
-;
+});
 
 module.exports = router;
